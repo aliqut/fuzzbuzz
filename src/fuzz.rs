@@ -17,10 +17,11 @@ pub fn create_fuzzlist(target_url: &str, wordlist: Vec<String>) -> Result<Vec<St
 }
 
 #[derive(Debug)]
-pub struct FuzzResult {
+pub struct FuzzResponse {
     pub url: String,
-    pub request_error: bool,
+    pub body: String,
     pub status_code: Option<u16>,
     pub reason_phrase: Option<String>,
     pub content_length: Option<u64>,
+    pub request_error: bool,
 }

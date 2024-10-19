@@ -3,14 +3,19 @@
 
 mod cli;
 mod commands;
+mod filters;
 mod fuzz;
 mod input;
 mod output;
 
-use crate::cli::Cli;
+use crate::{
+    cli::Cli,
+    filters::{parse_filter_list, parse_range_filter},
+};
 use anyhow::Result;
 use clap::Parser;
 use commands::fuzz;
+use filters::ResponseFilters;
 use output::output_result;
 
 fn main() -> Result<()> {
@@ -24,11 +29,18 @@ fn main() -> Result<()> {
     let timeout = cli.timeout;
     let concurrency = cli.concurrency;
 
+    // Parse filters from CLI options
+    let response_filters = ResponseFilters {
+        status_filters: parse_filter_list(cli.filter_status),
+        size_filters: parse_range_filter(cli.filter_size),
+        line_filters: parse_range_filter(cli.filter_lines),
+    };
+
     // Fuzz the URL and store results
-    let fuzz_results = fuzz(&target, &wordlist, timeout, concurrency)?;
+    let fuzz_responses = fuzz(&target, &wordlist, timeout, concurrency, response_filters)?;
 
     //Filter results based on CLI options and print to terminal output
-    output_result(fuzz_results);
+    output_result(fuzz_responses);
 
     Ok(())
 }

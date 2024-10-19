@@ -1,11 +1,11 @@
-use crate::fuzz::FuzzResult;
+use crate::fuzz::FuzzResponse;
 use colored::Colorize;
 
 // Filter and output results based on CLI options
-pub fn output_result(fuzz_results: Vec<FuzzResult>) {
+pub fn output_result(fuzz_responses: Vec<FuzzResponse>) {
     // Print output
     println!("");
-    for result in fuzz_results {
+    for result in fuzz_responses {
         let status_code = result.status_code.unwrap();
 
         // Colorise the status code based on type
