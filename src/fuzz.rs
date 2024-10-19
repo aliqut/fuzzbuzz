@@ -22,4 +22,5 @@ pub struct FuzzResult {
     pub request_error: bool,
     pub status_code: Option<u16>,
     pub reason_phrase: Option<String>,
+    pub content_length: Option<u64>,
 }

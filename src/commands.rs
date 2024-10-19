@@ -45,11 +45,16 @@ pub fn fuzz(target: &String, wordlist: &String, timeout: u64, concurrency: usize
                                 .canonical_reason()
                                 .map(|reason| reason.to_string())
                                 .unwrap_or_else(|| response.status().to_string());
+
+                            // Get the content length
+                            let content_length = response.content_length();
+
                             FuzzResult {
                                 url,
                                 request_error: false,
                                 status_code: Some(status_code),
                                 reason_phrase: Some(reason_phrase),
+                                content_length,
                             }
                         }
                         Err(err) => {
@@ -59,6 +64,7 @@ pub fn fuzz(target: &String, wordlist: &String, timeout: u64, concurrency: usize
                                 request_error: true,
                                 status_code: None,
                                 reason_phrase: None,
+                                content_length: None,
                             }
                         }
                     }
