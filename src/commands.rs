@@ -33,13 +33,12 @@ pub fn fuzz(target: &String, wordlist: &String) -> Result<()> {
     // Create fuzz_results output vector
     let mut fuzz_results: Vec<FuzzResult> = Vec::new();
 
+    log::info!("Fuzzing target URL");
     runtime.block_on(async {
         let _ = stream::iter(fuzzlist.into_iter())
             .map(|url| {
                 let http_client = &http_client;
                 async move {
-                    log::info!("Checking: {}", &url);
-
                     match http_client.get(&url).send().await {
                         Ok(response) => {
                             // Get status code
@@ -82,6 +81,7 @@ pub fn fuzz(target: &String, wordlist: &String) -> Result<()> {
     });
 
     // Print output results
+    println!("");
     for result in fuzz_results {
         let status_code = result.status_code.unwrap();
 
@@ -109,6 +109,7 @@ pub fn fuzz(target: &String, wordlist: &String) -> Result<()> {
 
         println!("{} {}: {}", status_code_colored, reason_phrase, result.url);
     }
+    println!("");
 
     // Benchmarking
     log::info!("Fuzzing took: {:2?}", fuzz_start.elapsed());
