@@ -1,12 +1,16 @@
 use crate::fuzz::{create_fuzzlist, FuzzResult};
 use anyhow::Result;
-use colored::Colorize;
 use futures::{stream, StreamExt};
 use reqwest::Client;
 use std::collections::HashSet;
 use std::time::{Duration, Instant};
 
-pub fn fuzz(target: &String, wordlist: &String, timeout: u64, concurrency: usize) -> Result<()> {
+pub fn fuzz(
+    target: &String,
+    wordlist: &String,
+    timeout: u64,
+    concurrency: usize,
+) -> Result<Vec<FuzzResult>> {
     // Benchmarking
     let fuzz_start = Instant::now();
 
@@ -81,41 +85,10 @@ pub fn fuzz(target: &String, wordlist: &String, timeout: u64, concurrency: usize
             .collect::<Vec<_>>();
     });
 
-    // Print output results
-    println!("");
-    for result in fuzz_results {
-        let status_code = result.status_code.unwrap();
-
-        // Colorise the status code based on type
-        let status_code_colored = match status_code {
-            // Informational responses
-            100..=199 => status_code.to_string().on_yellow(),
-            // Successful responses
-            200..=299 => status_code.to_string().on_green(),
-            // Redirection messages
-            300..=399 => status_code.to_string().on_blue(),
-            // Client error responses
-            400..=499 => status_code.to_string().on_red(),
-            // Server error responses
-            500..=599 => status_code.to_string().on_bright_red(),
-
-            // Other responses (should not happen)
-            _ => status_code.to_string().on_white(),
-        };
-
-        let reason_phrase = result
-            .reason_phrase
-            .clone()
-            .unwrap_or_else(|| "unknown".to_string());
-
-        println!("{} {}: {}", status_code_colored, reason_phrase, result.url);
-    }
-    println!("");
-
     // Benchmarking
     log::info!("Fuzzing took: {:2?}", fuzz_start.elapsed());
 
-    Ok(())
+    Ok(fuzz_results)
 }
 
 fn parse_wordlist(file_path: &str) -> Vec<String> {

@@ -1,9 +1,11 @@
 mod commands;
 mod fuzz;
+mod output;
 
 use anyhow::Result;
 use clap::{Parser, Subcommand};
 use commands::fuzz;
+use output::output_result;
 
 #[derive(Parser)]
 #[command(name = "furl")]
@@ -48,7 +50,8 @@ fn main() -> Result<()> {
             timeout,
             concurrency,
         } => {
-            fuzz(target, wordlist, *timeout, *concurrency)?;
+            let fuzz_results = fuzz(target, wordlist, *timeout, *concurrency)?;
+            output_result(fuzz_results);
             return Ok(());
         }
     }
