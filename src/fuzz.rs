@@ -19,6 +19,7 @@ pub fn create_fuzzlist(target_url: &str, wordlist: Vec<String>) -> Result<Vec<St
 #[derive(Debug)]
 pub struct FuzzResult {
     pub url: String,
-    pub status_code: u16,
-    pub reason_phrase: String,
+    pub request_error: bool,
+    pub status_code: Option<u16>,
+    pub reason_phrase: Option<String>,
 }

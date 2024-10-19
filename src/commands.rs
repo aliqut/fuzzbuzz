@@ -38,22 +38,34 @@ pub fn fuzz(target: &String, wordlist: &String) -> Result<()> {
                 let http_client = &http_client;
                 async move {
                     log::info!("Checking: {}", &url);
-                    let response = http_client.get(&url).send().await.unwrap();
 
-                    // Get status code
-                    let status_code = response.status().as_u16();
+                    match http_client.get(&url).send().await {
+                        Ok(response) => {
+                            // Get status code
+                            let status_code = response.status().as_u16();
 
-                    // Get the reason phrase.
-                    let reason_phrase = response
-                        .status()
-                        .canonical_reason()
-                        .map(|reason| reason.to_string())
-                        .unwrap_or_else(|| response.status().to_string());
-
-                    FuzzResult {
-                        url,
-                        status_code,
-                        reason_phrase,
+                            // Get the reason phrase.
+                            let reason_phrase = response
+                                .status()
+                                .canonical_reason()
+                                .map(|reason| reason.to_string())
+                                .unwrap_or_else(|| response.status().to_string());
+                            FuzzResult {
+                                url,
+                                request_error: false,
+                                status_code: Some(status_code),
+                                reason_phrase: Some(reason_phrase),
+                            }
+                        }
+                        Err(err) => {
+                            log::error!("{}: {}", url, err);
+                            FuzzResult {
+                                url,
+                                request_error: true,
+                                status_code: None,
+                                reason_phrase: None,
+                            }
+                        }
                     }
                 }
             })
@@ -61,6 +73,7 @@ pub fn fuzz(target: &String, wordlist: &String) -> Result<()> {
             .collect::<Vec<FuzzResult>>()
             .await
             .into_iter()
+            .filter(|result| !result.request_error)
             .map(|result| {
                 fuzz_results.push(result);
             })
