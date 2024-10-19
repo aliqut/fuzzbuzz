@@ -1,5 +1,6 @@
 mod commands;
 mod fuzz;
+mod input;
 mod output;
 
 use anyhow::Result;
