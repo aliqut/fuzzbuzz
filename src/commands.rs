@@ -5,6 +5,7 @@ use crate::{
     parse_wordlist,
 };
 use anyhow::Result;
+use colored::Colorize;
 use futures::{stream, StreamExt};
 use reqwest::Client;
 
@@ -80,7 +81,34 @@ pub fn fuzz(target: &String, wordlist: &String) -> Result<()> {
             .collect::<Vec<_>>();
     });
 
-    dbg!(fuzz_results);
+    // Print output results
+    for result in fuzz_results {
+        let status_code = result.status_code.unwrap();
+
+        // Colorise the status code based on type
+        let status_code_colored = match status_code {
+            // Informational responses
+            100..=199 => status_code.to_string().on_yellow(),
+            // Successful responses
+            200..=299 => status_code.to_string().on_green(),
+            // Redirection messages
+            300..=399 => status_code.to_string().on_blue(),
+            // Client error responses
+            400..=499 => status_code.to_string().on_red(),
+            // Server error responses
+            500..=599 => status_code.to_string().on_bright_red(),
+
+            // Other responses (should not happen)
+            _ => status_code.to_string().on_white(),
+        };
+
+        let reason_phrase = result
+            .reason_phrase
+            .clone()
+            .unwrap_or_else(|| "unknown".to_string());
+
+        println!("{} {}: {}", status_code_colored, reason_phrase, result.url);
+    }
 
     // Benchmarking
     log::info!("Fuzzing took: {:2?}", fuzz_start.elapsed());
