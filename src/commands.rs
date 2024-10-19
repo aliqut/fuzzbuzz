@@ -4,9 +4,9 @@ use colored::Colorize;
 use futures::{stream, StreamExt};
 use reqwest::Client;
 use std::collections::HashSet;
-use std::time::Instant;
+use std::time::{Duration, Instant};
 
-pub fn fuzz(target: &String, wordlist: &String) -> Result<()> {
+pub fn fuzz(target: &String, wordlist: &String, timeout: u64) -> Result<()> {
     // Benchmarking
     let fuzz_start = Instant::now();
 
@@ -25,7 +25,8 @@ pub fn fuzz(target: &String, wordlist: &String) -> Result<()> {
     let concurrency = 200;
 
     // Create new reqwest HTTP client
-    let http_client = Client::new();
+    let http_timeout = Duration::from_secs(timeout);
+    let http_client = Client::builder().timeout(http_timeout).build()?;
 
     // Create fuzz_results output vector
     let mut fuzz_results: Vec<FuzzResult> = Vec::new();

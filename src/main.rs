@@ -25,6 +25,10 @@ enum Commands {
 
         /// Path to a wordlist file
         wordlist: String,
+
+        /// HTTP request timeout length in seconds
+        #[arg(short, long, default_value_t = 4)]
+        timeout: u64,
     },
 }
 
@@ -34,8 +38,12 @@ fn main() -> Result<()> {
 
     let cli = Cli::parse();
     match &cli.command {
-        Commands::Fuzz { target, wordlist } => {
-            fuzz(target, wordlist)?;
+        Commands::Fuzz {
+            target,
+            wordlist,
+            timeout,
+        } => {
+            fuzz(target, wordlist, *timeout)?;
             return Ok(());
         }
     }
