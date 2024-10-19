@@ -6,7 +6,7 @@ use reqwest::Client;
 use std::collections::HashSet;
 use std::time::{Duration, Instant};
 
-pub fn fuzz(target: &String, wordlist: &String, timeout: u64) -> Result<()> {
+pub fn fuzz(target: &String, wordlist: &String, timeout: u64, concurrency: usize) -> Result<()> {
     // Benchmarking
     let fuzz_start = Instant::now();
 
@@ -20,9 +20,6 @@ pub fn fuzz(target: &String, wordlist: &String, timeout: u64) -> Result<()> {
     let runtime = tokio::runtime::Builder::new_multi_thread()
         .enable_all()
         .build()?;
-
-    // Number of threads
-    let concurrency = 200;
 
     // Create new reqwest HTTP client
     let http_timeout = Duration::from_secs(timeout);

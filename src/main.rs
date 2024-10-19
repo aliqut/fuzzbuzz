@@ -29,6 +29,10 @@ enum Commands {
         /// HTTP request timeout length in seconds
         #[arg(short, long, default_value_t = 4)]
         timeout: u64,
+
+        /// Number of concurrent threads
+        #[arg(short, long, default_value_t = 200)]
+        concurrency: usize,
     },
 }
 
@@ -42,8 +46,9 @@ fn main() -> Result<()> {
             target,
             wordlist,
             timeout,
+            concurrency,
         } => {
-            fuzz(target, wordlist, *timeout)?;
+            fuzz(target, wordlist, *timeout, *concurrency)?;
             return Ok(());
         }
     }
