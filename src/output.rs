@@ -1,8 +1,9 @@
 use crate::fuzz::FuzzResult;
 use colored::Colorize;
 
+// Filter and output results based on CLI options
 pub fn output_result(fuzz_results: Vec<FuzzResult>) {
-    // Print output results
+    // Print output
     println!("");
     for result in fuzz_results {
         let status_code = result.status_code.unwrap();
