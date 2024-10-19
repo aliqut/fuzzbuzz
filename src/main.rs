@@ -2,7 +2,6 @@
 #![allow(dead_code)]
 
 mod cli;
-mod commands;
 mod filters;
 mod fuzz;
 mod input;
@@ -14,8 +13,8 @@ use crate::{
 };
 use anyhow::Result;
 use clap::Parser;
-use commands::fuzz;
 use filters::ResponseFilters;
+use fuzz::fuzz;
 use output::output_result;
 
 fn main() -> Result<()> {
