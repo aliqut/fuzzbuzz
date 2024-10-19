@@ -1,13 +1,10 @@
-use std::time::Instant;
-
-use crate::{
-    fuzz::{create_fuzzlist, FuzzResult},
-    parse_wordlist,
-};
+use crate::fuzz::{create_fuzzlist, FuzzResult};
 use anyhow::Result;
 use colored::Colorize;
 use futures::{stream, StreamExt};
 use reqwest::Client;
+use std::collections::HashSet;
+use std::time::Instant;
 
 pub fn fuzz(target: &String, wordlist: &String) -> Result<()> {
     // Benchmarking
@@ -115,4 +112,23 @@ pub fn fuzz(target: &String, wordlist: &String) -> Result<()> {
     log::info!("Fuzzing took: {:2?}", fuzz_start.elapsed());
 
     Ok(())
+}
+
+fn parse_wordlist(file_path: &str) -> Vec<String> {
+    // Read file into string
+    let wordlist_file = std::fs::read_to_string(file_path).unwrap();
+
+    // Split wordlist by newline & whitespace. Remove duplicates & empty lines.
+    let wordlist: HashSet<String> = wordlist_file
+        .split_whitespace()
+        .collect::<Vec<&str>>()
+        .into_iter()
+        .map(|word| word.trim().to_string())
+        .filter(|word| !word.is_empty())
+        .collect();
+
+    // Convert wordlist from HashSet to Vec
+    let wordlist: Vec<String> = wordlist.into_iter().collect();
+
+    wordlist
 }
