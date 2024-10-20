@@ -22,39 +22,28 @@ fn main() -> Result<()> {
 
     let cli = Cli::parse();
 
-    let target = cli.target;
-    let wordlist = cli.wordlist;
-    let timeout = cli.timeout;
-    let concurrency = cli.concurrency;
-    let filter_status = cli.filter_status;
-    let filter_size = cli.filter_size;
-    let filter_lines = cli.filter_lines;
-    let match_status = cli.match_status;
-    let match_size = cli.match_size;
-    let match_lines = cli.match_lines;
-
     // Parse filters from CLI options
     let response_filters = parse_response_filters(
-        match_status,
-        match_size,
-        match_lines,
-        filter_status,
-        filter_size,
-        filter_lines,
+        cli.match_status,
+        cli.match_size,
+        cli.match_lines,
+        cli.filter_status,
+        cli.filter_size,
+        cli.filter_lines,
     );
 
     // Parse HTTP request options from CLI options
     let header_map = parse_headers(cli.headers, cli.cookies);
 
     // Create HTTP client
-    let http_client = create_http_client(timeout, header_map)?;
+    let http_client = create_http_client(cli.timeout, header_map)?;
 
     // Fuzz the URL and store results
     let fuzz_responses = fuzz(
-        &target,
-        &wordlist,
+        &cli.target,
+        &cli.wordlist,
         http_client,
-        concurrency,
+        cli.concurrency,
         response_filters,
     )?;
 
