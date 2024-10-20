@@ -3,6 +3,7 @@ use std::time::Duration;
 
 use reqwest::{
     header::{HeaderMap, HeaderName, HeaderValue},
+    redirect::Policy,
     Client,
 };
 
@@ -48,12 +49,20 @@ pub fn parse_headers(headers: Option<String>, cookies: Option<String>) -> Option
     Some(header_map)
 }
 
-pub fn create_http_client(timeout: u64, headers: Option<HeaderMap>) -> Result<Client> {
+pub fn create_http_client(
+    timeout: u64,
+    headers: Option<HeaderMap>,
+    redirects: usize,
+) -> Result<Client> {
     // HTTP timeout duration
     let http_timeout = Duration::from_secs(timeout);
 
-    // Create new HTTP client and assign timeout duration
-    let http_client = Client::builder().timeout(http_timeout);
+    // Create new HTTP client
+    let http_client = Client::builder()
+        //Assign timeout duration
+        .timeout(http_timeout)
+        // Assign maximum redirects
+        .redirect(Policy::limited(redirects));
 
     // If headers are provided, set HTTP client's default headers to them and return the client
     if headers.is_some() {

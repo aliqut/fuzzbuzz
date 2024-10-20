@@ -44,10 +44,17 @@ pub struct Cli {
     #[arg(short, long, default_value_t = 4)]
     pub timeout: u64,
 
-    /// HTTP request cookies. (Accepts a comma-separated list, e.g., "key: value, another-key:
+    /// HTTP request headers. (Accepts a comma-separated list, e.g., "key: value, another-key:
+    ///  another-value"
     #[arg(long)]
     pub headers: Option<String>,
 
+    /// HTTP request cookies. (Accepts a semicolon-separated list, e.g.,
+    /// "key=value;another-key=another-value"
     #[arg(long)]
     pub cookies: Option<String>,
+
+    /// Maximum HTTP redirect chain hops
+    #[arg(short, long, default_value_t = 10)]
+    pub redirects: usize,
 }

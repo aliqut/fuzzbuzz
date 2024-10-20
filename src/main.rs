@@ -36,7 +36,7 @@ fn main() -> Result<()> {
     let header_map = parse_headers(cli.headers, cli.cookies);
 
     // Create HTTP client
-    let http_client = create_http_client(cli.timeout, header_map)?;
+    let http_client = create_http_client(cli.timeout, header_map, cli.redirects)?;
 
     // Fuzz the URL and store results
     let fuzz_responses = fuzz(
