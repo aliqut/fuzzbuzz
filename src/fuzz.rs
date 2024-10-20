@@ -111,19 +111,28 @@ pub fn fuzz(
             .into_iter()
             // Filter out results with reqwest errors
             .filter(|result| !result.request_error)
-            // Apply status code filter
+            // Apply status code filters/matches
             .filter(|result| {
-                if let Some(ref allowed_status) = response_filters.status_filters {
+                if let Some(ref allowed_status) = response_filters.status_matches {
                     result
                         .status_code
-                        .map_or(false, |status| allowed_status.contains(&status.to_string()))
+                        .map_or(false, |status| allowed_status.contains(&status))
                 } else {
                     true
                 }
             })
-            // Apply content length filter
             .filter(|result| {
-                if let Some(ref size_ranges) = response_filters.size_filters {
+                if let Some(ref allowed_status) = response_filters.status_filters {
+                    result
+                        .status_code
+                        .map_or(false, |status| !allowed_status.contains(&status))
+                } else {
+                    true
+                }
+            })
+            // Apply content length filters/matches
+            .filter(|result| {
+                if let Some(ref size_ranges) = response_filters.size_matches {
                     if let Some(content_length) = result.content_length {
                         size_ranges.iter().any(|(min, max)| {
                             content_length >= (*min).try_into().unwrap()
@@ -136,13 +145,37 @@ pub fn fuzz(
                     true
                 }
             })
-            // Apply line count filter
+            .filter(|result| {
+                if let Some(ref size_ranges) = response_filters.size_filters {
+                    if let Some(content_length) = result.content_length {
+                        size_ranges.iter().any(|(min, max)| !{
+                            content_length >= (*min).try_into().unwrap()
+                                && content_length <= (*max).try_into().unwrap()
+                        })
+                    } else {
+                        false
+                    }
+                } else {
+                    true
+                }
+            })
+            // Apply line count filters/matches
+            .filter(|result| {
+                if let Some(ref line_ranges) = response_filters.line_matches {
+                    let line_count = result.body.lines().count() as usize;
+                    line_ranges
+                        .iter()
+                        .any(|(min, max)| line_count >= *min && line_count <= *max)
+                } else {
+                    true
+                }
+            })
             .filter(|result| {
                 if let Some(ref line_ranges) = response_filters.line_filters {
                     let line_count = result.body.lines().count() as usize;
                     line_ranges
                         .iter()
-                        .any(|(min, max)| line_count >= *min && line_count <= *max)
+                        .any(|(min, max)| !{ line_count >= *min && line_count <= *max })
                 } else {
                     true
                 }

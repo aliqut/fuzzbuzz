@@ -20,15 +20,27 @@ pub struct Cli {
     #[arg(short, long, default_value_t = 200)]
     pub concurrency: usize,
 
+    /// Match HTTP status code. (Accepts a comma-separated list, e.g., "200,301,401")
+    #[arg(long)]
+    pub match_status: Option<String>,
+
+    /// Match content size. (Accepts a comma-separated list, e.g., "100-200,300")
+    #[arg(long)]
+    pub match_size: Option<String>,
+
+    /// Match by number of lines. (Accepts a comma-separated list, e.g., "10-20,50")
+    #[arg(long)]
+    pub match_lines: Option<String>,
+
     /// Filter by HTTP status code. (Accepts a comma-separated list, e.g., "200,301,401")
-    #[arg(short = 's', long)]
+    #[arg(long)]
     pub filter_status: Option<String>,
 
     /// Filter by content size. (Accepts a comma-separated list, e.g., "100-200,300")
-    #[arg(short = 'z', long)]
+    #[arg(long)]
     pub filter_size: Option<String>,
 
     /// Filter by number of lines. (Accepts a comma-separated list, e.g., "10-20,50")
-    #[arg(short = 'l', long)]
+    #[arg(long)]
     pub filter_lines: Option<String>,
 }
