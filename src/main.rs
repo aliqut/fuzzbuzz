@@ -44,7 +44,7 @@ fn main() -> Result<()> {
     );
 
     // Parse HTTP request options from CLI options
-    let header_map = parse_headers(cli.headers);
+    let header_map = parse_headers(cli.headers, cli.cookies);
 
     // Create HTTP client
     let http_client = create_http_client(timeout, header_map)?;

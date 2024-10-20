@@ -6,30 +6,43 @@ use reqwest::{
     Client,
 };
 
-pub fn parse_headers(headers: Option<String>) -> Option<HeaderMap> {
-    if headers.is_none() {
+// TODO: Handle invalid inputs properly
+pub fn parse_headers(headers: Option<String>, cookies: Option<String>) -> Option<HeaderMap> {
+    // If there are no headers or cookies provided, return none
+    if headers.is_none() && cookies.is_none() {
         return None;
     }
-
-    // Split CLI header option by comma
-    let headers: Vec<String> = headers
-        .unwrap()
-        .split(',')
-        .map(|header| header.to_string())
-        .collect();
 
     // Create new header map
     let mut header_map = HeaderMap::new();
 
-    // Parse header string for key and value pairs and push to the HeaderMap
-    for header in headers {
-        let parts: Vec<&str> = header.splitn(2, ": ").collect();
-        if parts.len() == 2 {
-            header_map.insert(
-                HeaderName::from_bytes(parts[0].as_bytes()).unwrap(),
-                HeaderValue::from_str(parts[1]).unwrap(),
-            );
+    // If headers are provided, parse and push to the HeaderMap
+    if headers.is_some() {
+        // Split CLI header option by comma
+        let headers: Vec<String> = headers
+            .unwrap()
+            .split(',')
+            .map(|header| header.to_string())
+            .collect();
+
+        // Parse header string for key and value pairs and push to the HeaderMap
+        for header in headers {
+            let parts: Vec<&str> = header.splitn(2, ": ").collect();
+            if parts.len() == 2 {
+                header_map.insert(
+                    HeaderName::from_bytes(parts[0].as_bytes()).unwrap(),
+                    HeaderValue::from_str(parts[1]).unwrap(),
+                );
+            }
         }
+    }
+
+    // If cookies are provided, push to the HeaderMap
+    if cookies.is_some() {
+        header_map.insert(
+            HeaderName::from_bytes("Cookie".as_bytes()).unwrap(),
+            HeaderValue::from_str(&cookies.unwrap()).unwrap(),
+        );
     }
 
     Some(header_map)

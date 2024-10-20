@@ -12,10 +12,6 @@ pub struct Cli {
     /// Path to a wordlist file
     pub wordlist: String,
 
-    /// HTTP request timeout length in seconds
-    #[arg(short, long, default_value_t = 4)]
-    pub timeout: u64,
-
     /// Number of concurrent threads
     #[arg(short, long, default_value_t = 200)]
     pub concurrency: usize,
@@ -44,7 +40,14 @@ pub struct Cli {
     #[arg(long)]
     pub filter_lines: Option<String>,
 
-    /// HTTP request headers. (Accepts a comma-separated list, e.g., "200,301,401")
+    /// HTTP request timeout length in seconds
+    #[arg(short, long, default_value_t = 4)]
+    pub timeout: u64,
+
+    /// HTTP request cookies. (Accepts a comma-separated list, e.g., "key: value, another-key:
     #[arg(long)]
     pub headers: Option<String>,
+
+    #[arg(long)]
+    pub cookies: Option<String>,
 }
