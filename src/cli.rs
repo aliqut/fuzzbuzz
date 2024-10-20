@@ -43,4 +43,8 @@ pub struct Cli {
     /// Filter by number of lines. (Accepts a comma-separated list, e.g., "10-20,50")
     #[arg(long)]
     pub filter_lines: Option<String>,
+
+    /// HTTP request headers. (Accepts a comma-separated list, e.g., "200,301,401")
+    #[arg(long)]
+    pub headers: Option<String>,
 }

@@ -2,7 +2,7 @@ use crate::{filters::ResponseFilters, input::parse_wordlist};
 use anyhow::Result;
 use futures::{stream, StreamExt};
 use reqwest::Client;
-use std::time::{Duration, Instant};
+use std::time::Instant;
 
 #[derive(Debug)]
 pub struct FuzzResponse {
@@ -33,7 +33,7 @@ pub fn create_fuzzlist(target_url: &str, wordlist: Vec<String>) -> Result<Vec<St
 pub fn fuzz(
     target: &String,
     wordlist: &String,
-    timeout: u64,
+    http_client: Client,
     concurrency: usize,
     response_filters: ResponseFilters,
 ) -> Result<Vec<FuzzResponse>> {
@@ -50,10 +50,6 @@ pub fn fuzz(
     let runtime = tokio::runtime::Builder::new_multi_thread()
         .enable_all()
         .build()?;
-
-    // Create new reqwest HTTP client
-    let http_timeout = Duration::from_secs(timeout);
-    let http_client = Client::builder().timeout(http_timeout).build()?;
 
     // Create fuzz_responses output vector
     let mut fuzz_responses: Vec<FuzzResponse> = Vec::new();
@@ -111,6 +107,7 @@ pub fn fuzz(
             .into_iter()
             // Filter out results with reqwest errors
             .filter(|result| !result.request_error)
+            // TODO: Refactor this absolute mess
             // Apply status code filters/matches
             .filter(|result| {
                 if let Some(ref allowed_status) = response_filters.status_matches {

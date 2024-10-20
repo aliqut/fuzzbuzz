@@ -1,5 +1,3 @@
-use crate::cli::Cli;
-
 // TODO: Return an error for invalid status codes
 pub fn parse_filter_list(filter: Option<String>) -> Option<Vec<usize>> {
     filter.map(|f| f.split(',').map(|s| s.parse::<usize>().unwrap()).collect())
@@ -41,16 +39,23 @@ pub struct ResponseFilters {
     pub line_filters: Option<Vec<(usize, usize)>>,
 }
 
-pub fn parse_response_filters(cli: Cli) -> ResponseFilters {
+pub fn parse_response_filters(
+    match_status: Option<String>,
+    match_size: Option<String>,
+    match_lines: Option<String>,
+    filter_status: Option<String>,
+    filter_size: Option<String>,
+    filter_lines: Option<String>,
+) -> ResponseFilters {
     ResponseFilters {
-        status_matches: convert_usize_to_u16(parse_filter_list(cli.match_status))
+        status_matches: convert_usize_to_u16(parse_filter_list(match_status))
             .expect("Invalid match-status options"),
-        size_matches: parse_range_filter(cli.match_size),
-        line_matches: parse_range_filter(cli.match_lines),
-        status_filters: convert_usize_to_u16(parse_filter_list(cli.filter_status))
+        size_matches: parse_range_filter(match_size),
+        line_matches: parse_range_filter(match_lines),
+        status_filters: convert_usize_to_u16(parse_filter_list(filter_status))
             .expect("Invalid filter-status options"),
-        size_filters: parse_range_filter(cli.filter_size),
-        line_filters: parse_range_filter(cli.filter_lines),
+        size_filters: parse_range_filter(filter_size),
+        line_filters: parse_range_filter(filter_lines),
     }
 }
 
