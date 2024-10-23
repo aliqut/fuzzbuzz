@@ -7,6 +7,7 @@ mod fuzz;
 mod http;
 mod input;
 mod output;
+//mod tests;
 
 use crate::cli::Cli;
 use anyhow::Result;
@@ -45,6 +46,7 @@ fn main() -> Result<()> {
         http_client,
         cli.concurrency,
         response_filters,
+        cli.delay,
     )?;
 
     //Filter results based on CLI options and print to terminal output

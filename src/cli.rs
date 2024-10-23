@@ -57,4 +57,8 @@ pub struct Cli {
     /// Maximum HTTP redirect chain hops
     #[arg(short, long, default_value_t = 10)]
     pub redirects: usize,
+
+    /// Time delay for each thread's HTTP requests
+    #[arg(short, long, default_value_t = 0)]
+    pub delay: usize,
 }

@@ -1,8 +1,9 @@
 use crate::{filters::ResponseFilters, input::parse_wordlist};
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use futures::{stream, StreamExt};
 use reqwest::Client;
-use std::time::Instant;
+use std::time::{Duration, Instant};
+use tokio::time::sleep;
 
 #[derive(Debug)]
 pub struct FuzzResponse {
@@ -17,7 +18,8 @@ pub struct FuzzResponse {
 pub fn create_fuzzlist(target_url: &str, wordlist: Vec<String>) -> Result<Vec<String>> {
     // Check if URL contains FUZZ (FUZZ will be replaced by words in the wordlist)
     if !target_url.contains("FUZZ") {
-        log::error!("Invalid target URL. Must contain \"FUZZ\"");
+        log::error!("Invalid target: URL must contain \"FUZZ\"");
+        return Err(anyhow!("Invalid target: URL must contain \"FUZZ\""));
     }
 
     // For each word in wordlist, replace FUZZ in target_url with the word, output as a string
@@ -36,6 +38,7 @@ pub fn fuzz(
     http_client: Client,
     concurrency: usize,
     response_filters: ResponseFilters,
+    delay: usize,
 ) -> Result<Vec<FuzzResponse>> {
     // Benchmarking
     let fuzz_start = Instant::now();
@@ -77,6 +80,8 @@ pub fn fuzz(
 
                             // Read response body
                             let body = response.text().await.unwrap_or_else(|_| "".to_string());
+
+                            let _ = sleep(Duration::from_secs(delay.try_into().unwrap()));
 
                             FuzzResponse {
                                 url,
