@@ -44,7 +44,7 @@ pub fn fuzz(
     let fuzz_start = Instant::now();
 
     // Parse words from wordlist
-    let wordlist = parse_wordlist(wordlist.as_str());
+    let wordlist = parse_wordlist(wordlist.as_str())?;
 
     // Create fuzzlist from target URL and wordlist
     let fuzzlist = create_fuzzlist(&target, wordlist)?;
