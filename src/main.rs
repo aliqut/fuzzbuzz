@@ -45,7 +45,7 @@ fn main() -> Result<()> {
         &cli.wordlist,
         http_client,
         cli.concurrency,
-        response_filters,
+        response_filters?,
         cli.delay,
     )?;
 

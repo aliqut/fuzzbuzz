@@ -1,32 +1,52 @@
-// TODO: Return an error for invalid status codes
-pub fn parse_filter_list(filter: Option<String>) -> Option<Vec<usize>> {
-    filter.map(|f| f.split(',').map(|s| s.parse::<usize>().unwrap()).collect())
+use anyhow::{Context, Result};
+
+pub fn parse_filter_list(filter: Option<String>) -> Result<Option<Vec<usize>>> {
+    if let Some(f) = filter {
+        let parsed: Result<Vec<usize>> = f
+            .split(',')
+            .map(|s| {
+                s.trim()
+                    .parse::<usize>()
+                    .with_context(|| format!("Invalid status code: '{}'", s))
+            })
+            .collect();
+
+        parsed.map(Some)
+    } else {
+        Ok(None)
+    }
 }
 
-// TODO: Return an error for invalid size
-pub fn parse_range_filter(filter: Option<String>) -> Option<Vec<(usize, usize)>> {
-    filter.map(|f| {
-        f.split(',')
-            .filter_map(|range| {
-                let parts: Vec<&str> = range.split('-').collect();
+pub fn parse_range_filter(filter: Option<String>) -> Result<Option<Vec<(usize, usize)>>> {
+    if let Some(f) = filter {
+        let parsed_ranges: Result<Vec<(usize, usize)>> = f
+            .split(',')
+            .map(|range| {
+                let parts: Vec<&str> = range.split('-').map(|s| s.trim()).collect();
 
-                // If it is a range, e.g., 100-200, return tuple (100,200)
                 if parts.len() == 2 {
-                    Some((
-                        parts[0].parse::<usize>().unwrap(),
-                        parts[1].parse::<usize>().unwrap(),
-                    ))
-
-                // If it is a single number, e.g., 200, return tuple (200,200)
+                    let start = parts[0]
+                        .parse::<usize>()
+                        .with_context(|| format!("Invalid start of range: '{}'", parts[0]))?;
+                    let end = parts[1]
+                        .parse::<usize>()
+                        .with_context(|| format!("Invalid end of range: '{}'", parts[1]))?;
+                    Ok((start, end))
                 } else if parts.len() == 1 {
-                    let number = parts[0].parse::<usize>().unwrap();
-                    Some((number, number))
+                    let number = parts[0]
+                        .parse::<usize>()
+                        .with_context(|| format!("Invalid single number: '{}'", parts[0]))?;
+                    Ok((number, number))
                 } else {
-                    None
+                    Err(anyhow::anyhow!("Invalid range format: '{}'", range))
                 }
             })
-            .collect()
-    })
+            .collect();
+
+        parsed_ranges.map(Some)
+    } else {
+        Ok(None)
+    }
 }
 
 #[derive(Debug)]
@@ -46,17 +66,17 @@ pub fn parse_response_filters(
     filter_status: Option<String>,
     filter_size: Option<String>,
     filter_lines: Option<String>,
-) -> ResponseFilters {
-    ResponseFilters {
-        status_matches: convert_usize_to_u16(parse_filter_list(match_status))
+) -> Result<ResponseFilters> {
+    Ok(ResponseFilters {
+        status_matches: convert_usize_to_u16(parse_filter_list(match_status)?)
             .expect("Invalid match-status options"),
-        size_matches: parse_range_filter(match_size),
-        line_matches: parse_range_filter(match_lines),
-        status_filters: convert_usize_to_u16(parse_filter_list(filter_status))
+        size_matches: parse_range_filter(match_size)?,
+        line_matches: parse_range_filter(match_lines)?,
+        status_filters: convert_usize_to_u16(parse_filter_list(filter_status)?)
             .expect("Invalid filter-status options"),
-        size_filters: parse_range_filter(filter_size),
-        line_filters: parse_range_filter(filter_lines),
-    }
+        size_filters: parse_range_filter(filter_size)?,
+        line_filters: parse_range_filter(filter_lines)?,
+    })
 }
 
 fn convert_usize_to_u16(vec: Option<Vec<usize>>) -> Result<Option<Vec<u16>>, String> {
