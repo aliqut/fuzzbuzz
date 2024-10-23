@@ -4,7 +4,6 @@ mod tests {
         cli::Cli,
         filters::{parse_filter_list, parse_range_filter},
         fuzz::create_fuzzlist,
-        input::parse_wordlist,
         parse_response_filters,
     };
     use clap::{CommandFactory, Parser};
@@ -12,7 +11,7 @@ mod tests {
     #[test]
     fn test_cli_parsing() {
         let args = vec![
-            "furl",
+            "fuzzbuzz",
             "http://example.com/FUZZ",
             "wordlist.txt",
             "--concurrency",
@@ -39,7 +38,7 @@ mod tests {
 
     #[test]
     fn test_cli_defaults() {
-        let args = vec!["furl", "http://example.com/FUZZ", "wordlist.txt"];
+        let args = vec!["fuzzbuzz", "http://example.com/FUZZ", "wordlist.txt"];
         let cli = Cli::parse_from(args);
 
         assert_eq!(cli.concurrency, 200); // default

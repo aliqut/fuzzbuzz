@@ -1,7 +1,7 @@
 use clap::Parser;
 
 #[derive(Parser, Debug)]
-#[command(name = "furl")]
+#[command(name = "fuzzbuzz")]
 #[command(author = "aliqut")]
 #[command(version = "0.1.0")]
 #[command(about = "Web fuzzer written in Rust")]
