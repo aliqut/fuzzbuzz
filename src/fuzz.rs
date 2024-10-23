@@ -18,7 +18,6 @@ pub struct FuzzResponse {
 pub fn create_fuzzlist(target_url: &str, wordlist: Vec<String>) -> Result<Vec<String>> {
     // Check if URL contains FUZZ (FUZZ will be replaced by words in the wordlist)
     if !target_url.contains("FUZZ") {
-        log::error!("Invalid target: URL must contain \"FUZZ\"");
         return Err(anyhow!("Invalid target: URL must contain \"FUZZ\""));
     }
 
